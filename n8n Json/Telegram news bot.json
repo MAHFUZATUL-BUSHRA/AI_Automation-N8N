@@ -1,0 +1,218 @@
+{
+  "name": "Telegram news bot",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Search through tavily tool and provide me the news in summary way .",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -224,
+        -128
+      ],
+      "id": "5b106ab3-fa37-4706-9dcb-29704146df2a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-v4.1-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        128
+      ],
+      "id": "63649cac-f431-4daa-92d2-0d7a1af49946",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "x2tI4YOAP76zyX6e",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6541428373",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -144
+      ],
+      "id": "843f8573-0cee-4dac-a5e3-ed3646d3de78",
+      "name": "Send a text message",
+      "webhookId": "0318e9a0-f1c1-442b-a05e-726c54fe16f4",
+      "credentials": {
+        "telegramApi": {
+          "id": "PnwXSDURFTpFxUZm",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "feedUrl": "http://feeds.bbci.co.uk/news/rss.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1328,
+        0
+      ],
+      "id": "558fa59e-6ea7-46e9-96a9-28dfb45f8c54",
+      "name": "RSS Feed Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "6541428373",
+        "text": "={{ $json.content }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1072,
+        0
+      ],
+      "id": "1938b2a3-ee9b-42f0-a9ee-c86fee3125aa",
+      "name": "Send a text message1",
+      "webhookId": "0318e9a0-f1c1-442b-a05e-726c54fe16f4",
+      "credentials": {
+        "telegramApi": {
+          "id": "PnwXSDURFTpFxUZm",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -592,
+        96
+      ],
+      "id": "e38f8bc4-69f2-4c96-b3bb-900086c62c59",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        192
+      ],
+      "id": "cf180c79-4b2f-44fb-a399-3e45c6a2fe75",
+      "name": "Search the web in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "k3BzZgBm6fOzRqwn",
+          "name": "Tavily account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search the web in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e71d9cf5-e8e9-4e5b-a8cf-48870c78be46",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a22b4736dbfe2916faf647b623ad01d6dd162b5ffcc5386ffae27c2bd8d5d75c"
+  },
+  "nodeGroups": [],
+  "id": "kHsxFtaWgBZmHEc3",
+  "tags": []
+}

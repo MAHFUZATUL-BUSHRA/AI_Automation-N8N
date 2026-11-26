@@ -1,0 +1,90 @@
+{
+  "name": "MY FIRST WORKflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -1168,
+        -336
+      ],
+      "id": "0f99b06d-e20c-48a0-83a3-33b47519973c",
+      "name": "When chat message received",
+      "webhookId": "150abfb4-c196-4d56-8ec1-ad7706abbab6"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -816,
+        -320
+      ],
+      "id": "e1756278-5f5a-4386-a12c-0c39fa5b7805",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openrouter/free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        -144
+      ],
+      "id": "f604f4cd-a33d-443f-b5bf-afeac8d35dd2",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "x2tI4YOAP76zyX6e",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "923543a8-275f-42fb-80f7-90f71c6e10dd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a22b4736dbfe2916faf647b623ad01d6dd162b5ffcc5386ffae27c2bd8d5d75c"
+  },
+  "nodeGroups": [],
+  "id": "QjdBsAHUmoBV96pC",
+  "tags": []
+}

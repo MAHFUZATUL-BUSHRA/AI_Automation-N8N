@@ -1,0 +1,294 @@
+{
+  "name": "Portfolio Inquiries",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "portfolio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -1312,
+        -240
+      ],
+      "id": "8f6bd106-7192-4c35-b248-daaf5adaf5e3",
+      "name": "Webhook",
+      "webhookId": "d5f5f8e8-4ac1-4606-8c29-653f57948a7c"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.email }}",
+        "subject": "Inquiries",
+        "message": "<!DOCTYPE html>\n<html>\n<body style=\"font-family: Arial, sans-serif; color: #333; line-height: 1.6;\">\n\n    <p>Hi there,</p>\n\n    <p>\n        Thank you for visiting my portfolio! I truly appreciate your interest\n        in my work and projects.\n    </p>\n\n    <p>\n        If you have any questions, collaboration ideas, or professional\n        opportunities, feel free to reach out. I'd be happy to connect!\n    </p>\n\n    <p>\n        Best regards,<br>\n        <strong>Mahfuzatul Bushra</strong><br>\n        Data Analyst\n    </p>\n\n</body>\n</html>\n",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -752,
+        -288
+      ],
+      "id": "f33266de-0f46-4bb2-aa58-63e61b1b96f9",
+      "name": "Send a message",
+      "webhookId": "5dda2f43-0d3d-49c4-99d7-e8162ba01a65",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h0PF87HYpK5IfjE4",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-iBqcbgKNwoyTzcNILTzKiQp978AITT2UYwCaHF4df8",
+          "mode": "list",
+          "cachedResultName": "portfolio inquiries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-iBqcbgKNwoyTzcNILTzKiQp978AITT2UYwCaHF4df8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-iBqcbgKNwoyTzcNILTzKiQp978AITT2UYwCaHF4df8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json.body.name }}",
+            "Email Address": "={{ $json.body.email }}",
+            "Inquiry Type": "={{ $json.body.inquiryType }}",
+            "Organization (Optional)": "={{ $json.body.company }}",
+            "Project or Role Details": "={{ $json.body.message }}",
+            "Submission Date": "={{ DateTime.fromISO($json.body.receivedAt).toFormat('dd-MM-yy') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Inquiry Type",
+              "displayName": "Inquiry Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Organization (Optional)",
+              "displayName": "Organization (Optional)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Project or Role Details",
+              "displayName": "Project or Role Details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submission Date",
+              "displayName": "Submission Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -544,
+        -112
+      ],
+      "id": "1a9ec7f3-6e7c-4adc-afbd-1452fa74faf3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "g5zsfxv6xB5201pk",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.conversation[0].text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant, Reply based on context"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1120,
+        -48
+      ],
+      "id": "9dd563b8-0935-4184-b787-5ae0e1427f64",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-v4.1-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        176
+      ],
+      "id": "7d88c412-6890-4869-9286-fc090ad31ed9",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "x2tI4YOAP76zyX6e",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -1072,
+        192
+      ],
+      "id": "bd3166fe-452b-4e49-9592-82ebf0d6faa1",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -768,
+        176
+      ],
+      "id": "5fb871d6-8203-4b22-9d2c-f1ac0fc0479f",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2f947e4c-181b-465b-8cce-c02719cc448f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a22b4736dbfe2916faf647b623ad01d6dd162b5ffcc5386ffae27c2bd8d5d75c"
+  },
+  "nodeGroups": [],
+  "id": "r63Q4eUJdO8LLf5A",
+  "tags": []
+}

@@ -1,0 +1,158 @@
+{
+  "name": "My workflow -2",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Class Review",
+        "formDescription": "N8n Class Review",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "Email"
+            },
+            {
+              "fieldLabel": "Rating",
+              "fieldType": "radio",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1"
+                  },
+                  {
+                    "option": "2"
+                  },
+                  {
+                    "option": "3"
+                  },
+                  {
+                    "option": "4"
+                  },
+                  {
+                    "option": "5"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "58b889f1-277b-44fa-966c-3f2df7e0891c",
+      "name": "On form submission",
+      "webhookId": "53f3e544-40e0-4a1b-a446-8294241ee990"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1nZ_m1Mv3ySuukGthdNEYZk25BfdvUfMlOT2grXsbmZU",
+          "mode": "list",
+          "cachedResultName": "N8N form",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nZ_m1Mv3ySuukGthdNEYZk25BfdvUfMlOT2grXsbmZU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nZ_m1Mv3ySuukGthdNEYZk25BfdvUfMlOT2grXsbmZU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.Email }}",
+            "Name": "={{ $json.Name }}",
+            "Rating": "={{ $json.Rating }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a638fc6b-68d2-4190-a260-0a5d5597e7ef",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "g5zsfxv6xB5201pk",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "954ec706-e4b5-4d1e-b4b6-c02eba008392",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a22b4736dbfe2916faf647b623ad01d6dd162b5ffcc5386ffae27c2bd8d5d75c"
+  },
+  "nodeGroups": [],
+  "id": "qYTYifa7rIm16xwP",
+  "tags": []
+}

@@ -1,0 +1,220 @@
+{
+  "name": "Slack bot",
+  "nodes": [
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0CHV23B41Y",
+          "mode": "list",
+          "cachedResultName": "ai-automation",
+          "cachedResultUrl": ""
+        },
+        "text": "=hello ,Welcome Everyone {{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        144,
+        -48
+      ],
+      "id": "d1f716ff-d085-47bc-b1f4-6254e1efefd0",
+      "name": "Send a message",
+      "webhookId": "bf039967-f597-4865-a056-6d9a47ce07aa",
+      "credentials": {
+        "slackApi": {
+          "id": "xsmzDRVJbUt9EEfN",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "any_event",
+          "app_mention"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C0CHV23B41Y",
+          "mode": "list",
+          "cachedResultName": "ai-automation"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -128
+      ],
+      "id": "323a9771-7ba2-49dc-92ea-a2345e00afc8",
+      "name": "Slack Trigger",
+      "webhookId": "fac82732-aee5-4ef4-8c9a-0fd6102f4e93",
+      "credentials": {
+        "slackApi": {
+          "id": "xsmzDRVJbUt9EEfN",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.blocks[0].elements[0].elements[1].text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant, Reply besed on context massage"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -272,
+        -128
+      ],
+      "id": "89755bf5-6ac8-4f9e-bfdd-a1d448bc5a92",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-v4.1-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        80
+      ],
+      "id": "f137dd2e-c178-44be-98dd-7c8ed6a9501b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "x2tI4YOAP76zyX6e",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.blocks[0].elements[0].elements[0].user_id }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -208,
+        128
+      ],
+      "id": "35087988-1381-4c61-94e1-6af6d56c2ac2",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {
+    "Slack Trigger": [
+      {
+        "json": {
+          "type": "app_mention",
+          "user": "U0CHYPVMH6Y",
+          "ts": "1794729966.867049",
+          "client_msg_id": "48c82d81-9b4d-43e0-8238-265be7434eb6",
+          "text": "<@U0CHQ05TYR3> how work is going on",
+          "team": "T0CHT47R5AA",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "SPAjg",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "user",
+                      "user_id": "U0CHQ05TYR3"
+                    },
+                    {
+                      "type": "text",
+                      "text": " how work is going on"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "C0CHV23B41Y",
+          "event_ts": "1794729966.867049"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "61cc4698-8e41-4633-96cb-816dc7835393",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a22b4736dbfe2916faf647b623ad01d6dd162b5ffcc5386ffae27c2bd8d5d75c"
+  },
+  "nodeGroups": [],
+  "id": "nwpqnDXy38Fs4at2",
+  "tags": []
+}

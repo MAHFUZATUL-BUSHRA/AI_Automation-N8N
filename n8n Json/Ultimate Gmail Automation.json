@@ -1,0 +1,475 @@
+{
+  "name": "Ultimate Gmail Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1312,
+        -32
+      ],
+      "id": "faf02d33-3ef9-4207-9d21-fa933bf85b1e",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h0PF87HYpK5IfjE4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "=Subject : {{ $json.subject }}\n\nEmail Body: {{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Job-interview",
+              "description": "Anything Related to job and interviews"
+            },
+            {
+              "category": "Invoice",
+              "description": "Anything related to invoices and finance/money"
+            },
+            {
+              "category": "Academic",
+              "description": "Anything related to academic"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -1072,
+        -48
+      ],
+      "id": "db3cee74-c1b9-462b-aa10-509b703a89e0",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": "particle-ai/particle-1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        400
+      ],
+      "id": "6bffd9b5-c2f2-4d89-8d28-355a363e939e",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "x2tI4YOAP76zyX6e",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_3347177364852141779"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -752,
+        -256
+      ],
+      "id": "27387125-7602-466b-b603-a954028763f3",
+      "name": "Job - Interview",
+      "webhookId": "1bf8f811-85a3-4264-91cc-b1d969fbec64",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h0PF87HYpK5IfjE4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_4679308902394341674"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -704,
+        -32
+      ],
+      "id": "99825e54-05ce-495b-b218-b913f5efdc61",
+      "name": "Invoices",
+      "webhookId": "1bf8f811-85a3-4264-91cc-b1d969fbec64",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h0PF87HYpK5IfjE4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_1181352582352449026"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -704,
+        128
+      ],
+      "id": "1832c94c-a535-46bb-959b-e074c9792db8",
+      "name": "Academic",
+      "webhookId": "1bf8f811-85a3-4264-91cc-b1d969fbec64",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h0PF87HYpK5IfjE4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Gmail Trigger').item.json.subject }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        16,
+        -128
+      ],
+      "id": "5e99e2cc-d113-41af-bf9c-93de2d68762f",
+      "name": "Create a draft",
+      "webhookId": "a8c141c7-5aa3-4589-8cb6-397370d338c9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h0PF87HYpK5IfjE4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subject:{{ $('Gmail Trigger').item.json.subject }}\n\nEmail Body:{{ $('Gmail Trigger').item.json.text }}",
+        "options": {
+          "systemMessage": "# System Prompt: Professional Email Reply Assistant\n\nYou are a professional email reply assistant representing **Mahfuzatul Bushra, Data Analyst**.\n\nYour responsibility is to read incoming emails and generate short, relevant, polite, and professional replies.\n\n## 1. Understand the Incoming Email\n\n- Read the sender's name, email subject, and email body.\n- Identify the purpose and context of the email.\n- Understand what the sender expects or asks.\n- Automatically determine the most appropriate response and subject line.\n- Address the sender by their actual name at the beginning of every reply whenever available.\n\n## 2. Conditional Portfolio Search Using Tavily\n\nYou have access to Tavily Search to retrieve information about Mahfuzatul Bushra's professional portfolio.\n\n**IMPORTANT: Use Tavily only when necessary.**\n\nUse Tavily to search the portfolio when the sender asks about:\n- Portfolio or personal website.\n- Previous projects or project demonstrations.\n- Technical skills and tools.\n- Professional experience or work samples.\n- GitHub repositories or project links.\n- Specific details about data analytics, Power BI, SQL, Python, Excel, or other professional capabilities.\n\nDo NOT use Tavily when:\n- The email is about interview scheduling or confirmation.\n- The email is an academic announcement or general inquiry.\n- The email concerns invoices, payments, or receipts.\n- The email is a general greeting, thank-you message, or meeting invitation.\n- The email can be answered accurately using its existing context.\n\nIf Tavily search is required:\n1. Search only for relevant information from the portfolio.\n2. Use the retrieved information to prepare an accurate response.\n3. Never invent projects, skills, experience, or achievements.\n4. Do not mention Tavily or the search process in the email.\n5. If relevant information cannot be found, politely ask the sender for clarification.\n\nPortfolio URL:\nhttps://mahfuzatulbushra.vercel.app/\n\n## 3. Email Reply Writing Rules\n\n- Always keep replies short and relevant.\n- Prefer 2–5 sentences unless additional information is necessary.\n- Maintain a professional, friendly, and natural tone.\n- Answer the sender's questions directly.\n- Avoid unnecessary explanations and repetitive greetings.\n- Do not include irrelevant portfolio information.\n- Do not make unsupported promises or commitments.\n- Never assume that an interview, payment, meeting, or assignment has been confirmed.\n- If the sender requests information that is unavailable, ask politely for clarification.\n- Match the tone to the context: formal for recruiters and academic communication, professional and friendly for general business communication.\n\n## 4. Subject Line Rules\n\n- Identify the original subject.\n- If the subject exists, retain it and add \"Re:\" at the beginning.\n- If the subject is missing, generate a short, relevant subject.\n- Do not create misleading subject lines.\n\n## 5. Mandatory Sender Introduction\n\nAlways begin the email by addressing the sender using their name.\n\nExamples:\n- Dear Sarah Ahmed,\n- Dear Mr. Rahman,\n- Hello John,\n\nIf the sender's name is unavailable, use \"Hello,\" or \"Dear Sir/Madam,\" as appropriate.\n\n## 6. Mandatory Email Signature\n\nEvery email reply MUST end with:\n\nBest regards,\nMahfuzatul Bushra\nData Analyst\n\n## 7. Output Format\n\nReturn only the final email in this format:\nDear [Sender's Name],\n\n[Short, professional, and relevant email response.]\n\nBest regards,\nMahfuzatul Bushra\nData Analyst\n\n## 8. Final Restrictions\n\n- Never explain your reasoning.\n- Never provide multiple reply options.\n- Never include AI-generated commentary.\n- Never mention internal tools or Tavily.\n- Never search the web unless portfolio-related information is required.\n- Never use Tavily for unrelated emails.\n- Never fabricate personal or professional information.\n- Always prioritize accuracy, relevance, and brevity.\n\nYour goal is to make every email reply sound like it was personally written by Mahfuzatul Bushra. don't rewrite subject in the output ."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -448,
+        -128
+      ],
+      "id": "07ab9370-b96c-4b18-84ec-8cfb863efe6f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Text Classifier').item.json.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -432,
+        224
+      ],
+      "id": "be7b061e-676c-44fd-9f50-939168541159",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "resource": "crawl",
+        "url": "https://mahfuzatulbushra.vercel.app/",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        208
+      ],
+      "id": "db20b016-9ba9-4e9f-b5e6-2ef137a6e90f",
+      "name": "Crawl a website in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "k3BzZgBm6fOzRqwn",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "userKey": "u9q66hyv4k675pwgvdajzs2xdroeip",
+        "message": "=Check your inbox {{ $('Gmail Trigger').item.json.subject }}",
+        "priority": 1,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.pushover",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        400
+      ],
+      "id": "ad7dd293-315e-45c2-ba39-136dfe55ca03",
+      "name": "Push a message",
+      "credentials": {
+        "pushoverApi": {
+          "id": "ednJtkFJt2GFQeuK",
+          "name": "Pushover account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "1a1d98a00cb4a963",
+          "threadId": "1a1d98a00cb4a963",
+          "labelIds": [
+            "UNREAD",
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 9577,
+          "headers": {
+            "delivered-to": "Delivered-To: bushramahfuzatul@gmail.com",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id a640c23a62f3a-c50959cde9csor145239166b.10.2026.11.14.02.11.02\r\n        for <bushramahfuzatul@gmail.com>\r\n        (Google Transport Security);\r\n        Sat, 14 Nov 2026 02:11:02 -0800 (PST)",
+            "x-received": "X-Received: by 2002:a05:6402:540c:b0:6b4:16be:4fa with SMTP id\r\n 4fb4d7f45d1cf-6b7c0bbeca4mr4134582a12.15.1794651062085; Sat, 14 Nov 2026\r\n 02:11:02 -0800 (PST)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1794651062; cv=none;\r\n        d=google.com; s=arc-20260327;\r\n        b=VTiq1dwG6CjtQLs9kU0VDNpbRPDkD3Gc0L4VUSNu0e9dDD6oVeMMpA2/FLMPKn1GyI\r\n         nid4TjOJTjOu2u/hX2ts5j2x139qInsDgpbk4ed9mUUwZ5J0WHRLTlmzCVfqco/aZkwA\r\n         d53WaCrz3bVh8KVlQcVdmHfYrcphZCfjPAkg7eN4vYa0WuAiCffSjnVQBk5blnW5jOy8\r\n         rUje3jlnWX8B+v9pu5tRnFt5o0ty2i9mvUZZvSy3h8Sn5DjEPV74j6nuOmYqnmtBYQRK\r\n         QdW6uq/hfVkh9fWIvY+5QrmyaYP0t9wq1XIvn+MGU/E4syK7HLSUg1nn/G4jpdWFpc/K\r\n         s5fw==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;\r\n        h=to:subject:message-id:date:from:mime-version:dkim-signature;\r\n        bh=ovKEr4ZSovv0nQPCqXFUDK0jBwWedS5zJTRUeXPzkx4=;\r\n        fh=pewrjhapj88El0eBArMfHoAcQCRbhqLXQ6mYF/HsGoA=;\r\n        b=a1hqoqoGlnK+TNlr6HOtBTGReTBM0fICJt6p1qd6W+CdCEdi1I4fLn4zj+udi1YQI3\r\n         THwXw4/oLjNQkXA4GLubTrZhNRgdO/h8MXY3aLCnzPjwPDRyxk7j+JrRxKDag3NNzxla\r\n         rJF79RdGI4kk/ZymM7sPdzYm3bmMo9OJvMy/XPjHyTMM1ktr1Uf62ZzNVwK9G2Dtdu8B\r\n         pSwKSxQKoObjtfN5XIxmPAV9CjjR9r083r2vXm46BLLhs7W0hDkBvZXDVEGDDHAXnF/A\r\n         8oNkr5rvkRe3ISfJ/bsTazbbciSIBXar40spg+YkrGUKBSa7j4PE9D+MpSU/whi3qClB\r\n         EkHQ==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none",
+            "return-path": "Return-Path: <tisha091996@gmail.com>",
+            "received-spf": "Received-SPF: pass (google.com: domain of tisha091996@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20260707 header.b=o9dTfOZc;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of tisha091996@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=tisha091996@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=pass header.i=@gmail.com",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20260707; t=1794651062; x=1795255862; dara=google.com;\r\n        h=content-type:to:subject:message-id:date:from:mime-version:from:to\r\n         :cc:subject:date:message-id:reply-to:content-type;\r\n        bh=ovKEr4ZSovv0nQPCqXFUDK0jBwWedS5zJTRUeXPzkx4=;\r\n        b=o9dTfOZcHpI0QdiKqNN7MNCoUx+4m2MjUEdtHQTDyScDNSL18A8u9rulim3hRcOODF\r\n         MliwXtFdxG2OKW3a7Q7jWVPeOGC3ubCb8yQus9OwwObPR6gvtiiOZUVfbi80RK/eieK5\r\n         yiu4lq0+AOM8bsEXUDQe45Fub9ZFv3q8BGNcKkjWxZcaFYvreEcn2Ikvr6wx0WMV28xz\r\n         yXXW3G5+eCcnxI+BRU65c5lngxQHLrPiifq6OgkjMRfoUAEmVNkYFe9fFG93FQGJKCMx\r\n         b+/9plnQf+Okss7coeUcArN6tUteHlK+8Xyob6dKhy4kTk45fb85BjJlumL1/dpcyfe/\r\n         SEWQ==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20260707; t=1794651062; x=1795255862;\r\n        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg\r\n         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to\r\n         :content-type;\r\n        bh=ovKEr4ZSovv0nQPCqXFUDK0jBwWedS5zJTRUeXPzkx4=;\r\n        b=v2XTp6oCWUcHM6RG7iWlTdbDyV2gqv409rGbXzrcaxBMK7an8TNCXFc1D2yitm1EsW\r\n         PfVjCfpTtk6av6z+HAVefN+sGV9+qq2JseRKY//KG1Qv/ZPLA5E0PDFqaoJWrOWq/iOG\r\n         rX5Vsf+2xi9tcWL2g6Nu76QYPCboWkm9/uzjsBVpF/87PNdooTfsgsLGeOZ3vQ0Dj9fm\r\n         yDkxd4ci5uuzvKwCxeTO6PQ81/7WGuIS5Ab+CFwTQvAy07W896q6CcvmlseGsHZio5uP\r\n         ID+fbU7LnWVG2rMu8ghoYn4e2akVJdsQdwyJzG1gtYm2NVPVtLB4xGwj7zIlXEtR1SfC\r\n         ERGg==",
+            "x-gm-message-state": "X-Gm-Message-State: APuU4Z9Mn7TKLHwwLhLiBG4/x8rIC3W5bYZ3HEj6QHSiKLtrgkZbqoBP\r\n\tB8CDCQWTFD1A8zQfJPSG1OEllS+1RMce3arAFyt0GHRD3hJpJzRgyx9BFSrXVcvGMwpMuOmJv3M\r\n\taREPltXv12HfHXVXVw2k40GU2FMJaItErAfT/",
+            "x-gm-gg": "X-Gm-Gg: AYBFou1sbdT3U4r6kYtQIOOquTReio3n8RbpA2Ql8pf5H/1BOdv/Jq+BqTwb/8uiuRH\r\n\tHrLtbixAqi+AzcwP2fRN1Meli5Ae5GPh/xLR1f/Uabln6YatL40J8UPgwB0PBlyzeVM5Ix6LeCq\r\n\tFh8mY+jQcv8r+5EUrhAqngVJUXRkX+MyNpTeMqAr9rbllhm8l8SGvBI6tzuwucIKW0DSHlLfe7a\r\n\tiTg3+EFZwyIOVHXl49ixFelXYOY4e+8eRJmUHQRvtRcJo+Jvin1lQxQO2QO0QI4tJ2jtGzn6/Dl\r\n\tyQXh7Zicic2nKdhOUrpkellvgP7+ieQJ/ILWchHW2zpGRfCA79uqad3kWSzbijydTW0Fr5w0wBM\r\n\t03QQ47s7OjPs6ELyPDC1/AtLTbq7ja6wXpX9wG4dQFNDW+9kxmix7lf69XTrrgl6ov5MN",
+            "mime-version": "MIME-Version: 1.0",
+            "from": "From: Tisha <tisha091996@gmail.com>",
+            "date": "Date: Sat, 14 Nov 2026 16:10:39 +0600",
+            "x-gm-features": "X-Gm-Features: AclHuK8njkIRiknX2nX51Te-W7oeNH4O188mClkZPTJ3DBeLFfswKNokyOmvgGo",
+            "message-id": "Message-ID: <CAGzw+yfxNtp1OcW45M4UPy4gFfDpWcwiamU7evyJ6qYvBB-dpg@mail.gmail.com>",
+            "subject": "Subject: Reminder: Final Assignment Submission Deadline",
+            "to": "To: \"bushramahfuzatul@gmail.com\" <bushramahfuzatul@gmail.com>",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"0000000000000d2c9b066039c328\""
+          },
+          "html": "<div dir=\"ltr\"><p>Dear Students,</p><p>This is a friendly reminder that the final assignment for the Business Analytics course must be submitted by November 20, 2026.</p><p><strong>Assignment Details:</strong></p><ul><li style=\"margin-left:15px\"><p>Course: Business Analytics</p></li><li style=\"margin-left:15px\"><p>Assignment Topic: Data Analysis Using Excel</p></li><li style=\"margin-left:15px\"><p>Submission Deadline: November 20, 2026</p></li><li style=\"margin-left:15px\"><p>Submission Format: PDF and Excel workbook</p></li><li style=\"margin-left:15px\"><p>Submission Method: Upload through the university portal</p></li></ul><p>Please ensure that your assignment includes the required calculations, visualizations, and interpretations.</p><p>Late submissions may be subject to penalties according to the university&#39;s academic policy.</p><p>Make sure that u send your portfolio link and Details about yourself ,what you already know , that would be better for me so i can further assist you what career will suit you best.</p><p>If you have any questions or need clarification, feel free to contact me.</p><p>Best regards,<br>Dr. Sarah Ahmed<br>Department of Business Administration<br>ABC University<br><a href=\"mailto:sarah.ahmed@abcuniversity.edu\" target=\"_blank\">sarah.ahmed@abcuniversity.edu</a></p></div>\n",
+          "text": "Dear Students,\n\nThis is a friendly reminder that the final assignment for the Business\nAnalytics course must be submitted by November 20, 2026.\n\n*Assignment Details:*\n\n   -\n\n   Course: Business Analytics\n   -\n\n   Assignment Topic: Data Analysis Using Excel\n   -\n\n   Submission Deadline: November 20, 2026\n   -\n\n   Submission Format: PDF and Excel workbook\n   -\n\n   Submission Method: Upload through the university portal\n\nPlease ensure that your assignment includes the required calculations,\nvisualizations, and interpretations.\n\nLate submissions may be subject to penalties according to the university's\nacademic policy.\n\nMake sure that u send your portfolio link and Details about yourself ,what\nyou already know , that would be better for me so i can further assist you\nwhat career will suit you best.\n\nIf you have any questions or need clarification, feel free to contact me.\n\nBest regards,\nDr. Sarah Ahmed\nDepartment of Business Administration\nABC University\nsarah.ahmed@abcuniversity.edu\n",
+          "textAsHtml": "<p>Dear Students,</p><p>This is a friendly reminder that the final assignment for the Business<br/>Analytics course must be submitted by November 20, 2026.</p><p>*Assignment Details:*</p><p>   -</p><p>   Course: Business Analytics<br/>   -</p><p>   Assignment Topic: Data Analysis Using Excel<br/>   -</p><p>   Submission Deadline: November 20, 2026<br/>   -</p><p>   Submission Format: PDF and Excel workbook<br/>   -</p><p>   Submission Method: Upload through the university portal</p><p>Please ensure that your assignment includes the required calculations,<br/>visualizations, and interpretations.</p><p>Late submissions may be subject to penalties according to the university&apos;s<br/>academic policy.</p><p>Make sure that u send your portfolio link and Details about yourself ,what<br/>you already know , that would be better for me so i can further assist you<br/>what career will suit you best.</p><p>If you have any questions or need clarification, feel free to contact me.</p><p>Best regards,<br/>Dr. Sarah Ahmed<br/>Department of Business Administration<br/>ABC University<br/><a href=\"mailto:sarah.ahmed@abcuniversity.edu\">sarah.ahmed@abcuniversity.edu</a></p>",
+          "subject": "Reminder: Final Assignment Submission Deadline",
+          "date": "2026-11-14T10:10:39.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "bushramahfuzatul@gmail.com",
+                "name": ""
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><a href=\"mailto:bushramahfuzatul@gmail.com\" class=\"mp_address_email\">bushramahfuzatul@gmail.com</a></span>",
+            "text": "bushramahfuzatul@gmail.com"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "tisha091996@gmail.com",
+                "name": "Tisha"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Tisha</span> &lt;<a href=\"mailto:tisha091996@gmail.com\" class=\"mp_address_email\">tisha091996@gmail.com</a>&gt;</span>",
+            "text": "\"Tisha\" <tisha091996@gmail.com>"
+          },
+          "messageId": "<CAGzw+yfxNtp1OcW45M4UPy4gFfDpWcwiamU7evyJ6qYvBB-dpg@mail.gmail.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Job - Interview",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invoices",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Academic",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        []
+      ]
+    },
+    "Job - Interview": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoices": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Academic": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crawl a website in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9936a01a-c15a-4422-9c57-78523c559308",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a22b4736dbfe2916faf647b623ad01d6dd162b5ffcc5386ffae27c2bd8d5d75c"
+  },
+  "nodeGroups": [],
+  "id": "2qu7diC2MtrAFpro",
+  "tags": []
+}
