@@ -1,0 +1,646 @@
+{
+  "name": "class 3",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1296,
+        -272
+      ],
+      "id": "276c2e27-a66f-41af-a269-340b994a6085",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zjX4MdgLpDKNI4Vo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "=Subject : {{ $json.subject }}\n\nEmail Body : {{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "JOB",
+              "description": "Anything related to job."
+            },
+            {
+              "category": "Invoices",
+              "description": "Anything related to invoice/amount."
+            },
+            {
+              "category": "University",
+              "description": "Anything related to Academic."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -1072,
+        -288
+      ],
+      "id": "d2d50da0-3380-4ed9-b8f5-22d88c1238c5",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_7645330146826404155"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -896,
+        -480
+      ],
+      "id": "3e33c69d-9d7c-4088-8ab4-860e9ee7a738",
+      "name": "Job L",
+      "webhookId": "98072602-c50e-417f-ad4b-dfe41f327626",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zjX4MdgLpDKNI4Vo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subject : {{ $('Gmail Trigger').item.json.subject }}\n\nEmail Body: {{ $('Gmail Trigger').item.json.text }}",
+        "options": {
+          "systemMessage": "=You are a professional AI Email Assistant. Read incoming emails, understand their intent, and generate short, relevant, and professional replies.\n\nRules:\n1. Keep replies concise, natural, polite, and context-aware.\n2. Match the tone of the incoming email.\n3. For job-related emails, maintain a professional tone.\n4. For university emails, use a respectful and formal tone.\n6. Never invent information, make false claims, or commit to anything without authorization.\n7. If information is missing, politely ask for clarification.\n\nTOOL USAGE:\n- Use the Tavily tool to search my portfolio website ONLY when an email requires personal information, professional background, skills, experience, projects, or services.\n- Do not use Tavily for ordinary emails that can be answered without personal information.\n- Use only relevant information found on my portfolio website.\n- Never assume or fabricate personal details if the information cannot be found.\n\nSAFETY:\n- Do not automatically respond to spam, suspicious emails, phishing attempts, or requests for sensitive personal or financial information.\n- Do not disclose private information unnecessarily.\n\nOUTPUT:\nReturn only the email reply body. Do not include a subject line, explanations, or tool usage details.\n\n* Always signed off using \"ROhanur Rahman\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -672,
+        -480
+      ],
+      "id": "e227284e-e486-4771-9da5-0f32428c70eb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Text Classifier').item.json.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -528,
+        64
+      ],
+      "id": "ed1cf6c0-6dde-4dc7-9b90-fd01df9613bd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "resource": "crawl",
+        "url": "https://rohanurrahmanontu.netlify.app/",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        80
+      ],
+      "id": "69dc480b-8b36-48cd-a050-06adfef1b0b7",
+      "name": "Crawl a website in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "i8vcjeZtRxgVneqV",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        -480
+      ],
+      "id": "63fedcfe-9835-46c4-b872-ef18eb25735f",
+      "name": "Create a draft",
+      "webhookId": "04de4de5-43e1-40c8-a946-31e80e62ce52",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zjX4MdgLpDKNI4Vo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "userKey": "ua6168ajnnhv7k654s3g2ujor36cuw",
+        "message": "=Please check your high priority task - {{ $json.subject }}",
+        "priority": 1,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.pushover",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -304
+      ],
+      "id": "c4b5ef42-24a7-46e4-ad7a-552e2a50e83c",
+      "name": "Push a message",
+      "credentials": {
+        "pushoverApi": {
+          "id": "pQpetrMhlhaoGW13",
+          "name": "Pushover account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -1872,
+        208
+      ],
+      "id": "e918c330-07b9-4592-a33f-a6e7d8165229",
+      "name": "Telegram Trigger",
+      "webhookId": "77cb6684-0721-468b-8ee3-becf65265a51"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1648,
+        208
+      ],
+      "id": "4dce3d13-875a-4340-9a4b-ab56e54b94d9",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1792,
+        416
+      ],
+      "id": "eb24ef1a-06cb-4f84-95e3-1fd5c17941d0",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -1520,
+        464
+      ],
+      "id": "83d5cd86-8c5f-4816-a0ee-6ab9e6573b07",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1376,
+        208
+      ],
+      "id": "26c35aa4-202c-47ba-ac16-78f4290d001f",
+      "name": "Send a text message",
+      "webhookId": "e9dbc330-6d25-4ebc-b9f0-35daf64e0e3a"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        96
+      ],
+      "id": "25368a8a-58e6-4dc1-8887-6892743ecd56",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0CFX9ATX7X",
+          "mode": "list",
+          "cachedResultName": "ai-automation",
+          "cachedResultUrl": ""
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        -992,
+        1616
+      ],
+      "id": "2c2d4420-f0c0-465f-8654-8d99fed8e479",
+      "name": "Send a message",
+      "webhookId": "0ca43ad0-f0fc-4ace-90a1-cbe70ce6fd1e",
+      "credentials": {
+        "slackApi": {
+          "id": "6tJQIWbWwJYjF69w",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "any_event",
+          "app_mention"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C0CFX9ATX7X",
+          "mode": "list",
+          "cachedResultName": "ai-automation"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1584,
+        1616
+      ],
+      "id": "28b6e3d5-c336-4858-80de-0a1598ede3eb",
+      "name": "Slack Trigger",
+      "webhookId": "2d490104-a97a-4fb4-94ed-dd2ef53b1752",
+      "credentials": {
+        "slackApi": {
+          "id": "6tJQIWbWwJYjF69w",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.blocks[0].elements[0].elements[1].text }}",
+        "options": {
+          "systemMessage": "reply the user massage based on message context"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1360,
+        1616
+      ],
+      "id": "4bff3cb4-8477-41ae-8b36-93b4e6de5c8d",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1504,
+        1872
+      ],
+      "id": "69a01377-9748-42f9-8876-535d655f7595",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FFjsHDakPn9XxhXZ",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.blocks[0].elements[0].elements[0].user_id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -1328,
+        1840
+      ],
+      "id": "2a13eb7e-adca-4352-ac9f-449f7f127a85",
+      "name": "Simple Memory2"
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "1a1bbe6628c0091a",
+          "threadId": "1a1bbe6628c0091a",
+          "labelIds": [
+            "UNREAD",
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 8078,
+          "headers": {
+            "delivered-to": "Delivered-To: playwithdatawithontu@gmail.com",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id 2adb3069b0e04-5c14b75a163sor189729e87.2.2026.11.08.08.03.20\r\n        for <playwithdatawithontu@gmail.com>\r\n        (Google Transport Security);\r\n        Sun, 08 Nov 2026 08:03:20 -0800 (PST)",
+            "x-received": "X-Received: by 2002:a05:6512:6cf:b0:5bf:ce1f:66ec with SMTP id\r\n 2adb3069b0e04-5c14c00b769mr439747e87.22.1794153799932; Sun, 08 Nov 2026\r\n 08:03:19 -0800 (PST)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1794153800; cv=none;\r\n        d=google.com; s=arc-20260327;\r\n        b=XnnreX94LIOTt3jZ9GCEmISJP/R313Nd4p7OWRyG1ut46YLQlRRMN3IwdXzNl0zMpf\r\n         tKKHxUydj9dtq0ILdhmHaEemYWQAZgGjPmAROPXM3fdPdiO15HQ/P/t6GPsKVnVl6Q2Z\r\n         O2Q9Fw7pTcJsyj0pbFW/XHgOiAcb2MoMB/W6R200WZu2inh1W7QXj11ifcETSs9m4aEP\r\n         yUX/3fgoQJEkOrpKOtnlrbVmv2kWFV6JD8RNt8tYHguwAAW+CmClWfMcO2K0xUAs5VcY\r\n         p8798Q7nv5RxOZaR8ygOaJz/IjYLmofQD2xJrMeEuZv57le4XYY/cKiRhJIk90iC3krx\r\n         hsZg==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;\r\n        h=to:subject:message-id:date:from:mime-version:dkim-signature;\r\n        bh=OheJo/281UROwMFQ1JRbwHKnb2UKJS0eBBTJipdULoA=;\r\n        fh=oPcNfp0C/LG+EKfvaE6RwPHOMoXEw/09qZH7o1pdXAI=;\r\n        b=BKmz+kCzfl9/SCKXo0FDXOKXMZfTmd3cGaDxEXuAMkJQCSEvRwyuyPbURKqNtjGGWB\r\n         iFdw0dfXtrm037o81mMkzlVHbVf2IHRE1SdnbEdX1sfJYxvMYFYp9bSBa8SMe0GIogoA\r\n         oq8v/ZEGBcbLUX+KQOWkax4YP7Yc2Totookl2tZPam7gmSm5KQuT0boyZ/TWyhnyQHSc\r\n         jnB9PG4DZL5C78WwNrgc6bf8jIfzqPrqgN1pfCoUdh4HTsurNxXOtqU+kxt64aR113IH\r\n         oKlmt+9tTWaz0X1eHuYTO0y407S9g0Y4DI65NBpKQusoJQzdCa1EYZD6z0WjTvO26BTv\r\n         AW4g==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none",
+            "return-path": "Return-Path: <teasy179@gmail.com>",
+            "received-spf": "Received-SPF: pass (google.com: domain of teasy179@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20260707 header.b=QlOioJAy;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of teasy179@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=teasy179@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=pass header.i=@gmail.com",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20260707; t=1794153800; x=1794758600; dara=google.com;\r\n        h=content-type:to:subject:message-id:date:from:mime-version:from:to\r\n         :cc:subject:date:message-id:reply-to:content-type;\r\n        bh=OheJo/281UROwMFQ1JRbwHKnb2UKJS0eBBTJipdULoA=;\r\n        b=QlOioJAyY+a/FVkWDR7ZXTkp0KlS44YfBKkuWt0Lp0bO5YGE9BC0Xe07h4fXCkMc9e\r\n         /EURO9qkLh4tB9h0nIhD839XnoT42yUFAO/hY83B62SO2vTgrrtNNzqv7Qm6iXETXqIp\r\n         RPnhF/ykpnAFqkFMG13RxLnaT9TVKwFoMZw9mmN3rHUCH5vO8sLe19+P5MFe3dh7kimw\r\n         Sc4ObojZVqq0S1fGEQa9NGKZMm2iU7uYx8cKSl/Y9hjPpqc2+ivAoy1PE0hYaK8RYIEm\r\n         sbuPlUhuj+XyxFyhs/FT8P6ElwoI0V5GiHRzF3RzeE0RQKHxWr8z9yScbL6NHzBsoJYz\r\n         QmLg==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20260707; t=1794153800; x=1794758600;\r\n        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg\r\n         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to\r\n         :content-type;\r\n        bh=OheJo/281UROwMFQ1JRbwHKnb2UKJS0eBBTJipdULoA=;\r\n        b=O56RQcFut5P0Z1/MXGeMIKRtxB5azogBwP1zr8kLvGpH1Qloj802suEh/LAsknfv5a\r\n         3jdXj6trKBlcISacaSW4UTpgHpTaGMzgHmzMvgxaa9093ROfOtMzIO/u29RSo2A60fUC\r\n         U9gP3HrMw0B5TXGudoDYyBjSEr6ljc8U65rhHHa9HpKxeKGzQ/4CrzT1t1julZA0Dqpw\r\n         Cdpx/ngH9yHLX4nfvh1xFz80DT3F7eO2M7dAy2cjZqsN3eyhgvGJI0MHcrsIrKXynBVf\r\n         8QrTEtn/KV4zAhPyAhS8wPd5Q51YRX4tapK6fnctpiJjLNDb1aVkzSttBMQuXmBS8WXp\r\n         I/hg==",
+            "x-gm-message-state": "X-Gm-Message-State: APuU4Z8VgL6dpVAFcyYOX23LecRlJmvx2MaeTEKjC/Pr/SnzqXOJ/LKz\r\n\tU1KUi5bktZA5kIjlJQrAt8HaJXAWdfoAggxlPQKoYJOU073VvwoSC/FzJg7+bC/SeAPERhU/wEt\r\n\tZz0f7zjw5SU7DwdX8ZkZx0uN/tF6vZJlxjp5M",
+            "x-gm-gg": "X-Gm-Gg: AYBFou11+e3Q9bCR1laFMWlM7Ge0DjqrYt8bmB37ZQ7P+e5TOiuNPYOfL3ErM2Ki7xs\r\n\tNZ8v4L1WFkmmZ1i+FXq796CdMlifghBSRt4zk+V4UMI3fYDzir2EfDjRHu9P+9GwiInCpzA7N14\r\n\tpk7MC0WyTYpAapXB8puEqf6/csHGLEeRR+125yHSrVKphOUWjJCgnRVDgxWa+OwXko3nm7FH5Sb\r\n\tyoz+SNyfPTxul89hxgcrJrH14IKXF9zFK3hjezvqj/UFrIXiFqu8VUqH2KEIE4kwx/eAQi7fQiS\r\n\tkI8iivEfvQQJHYwhMLbZKwqlaih/3Bu5rWFEfe6YUlChbW6tuSmQ0D0iSuttWJ8ZjMP9688bjNZ\r\n\tAAI7xy3yAqniRyOSSM+rdlqr1JxhXZj+DFB5Rl4hOpN0KfHmtfRZCuAyRf9c6v9sdDFQGp3h1Hc\r\n\teCaooXDMDXVJyl3bFroIGl8repITq8OncKcuTnIOxGGgLefA==",
+            "mime-version": "MIME-Version: 1.0",
+            "from": "From: Rohanur Rahman <teasy179@gmail.com>",
+            "date": "Date: Mon, 9 Nov 2026 00:03:08 +0800",
+            "x-gm-features": "X-Gm-Features: AclHuK9CsaIaKW5goEI07qiKtOAI5-DBSVhTmMb4lPp_3LIJfhBZt8239Tb8tIc",
+            "message-id": "Message-ID: <CA+Wccc2pUJ3NQP+B2uNDvoG+0GqRxLgL0zDCQ0=hCiRR1pP5pw@mail.gmail.com>",
+            "subject": "Subject: =?UTF-8?Q?Interview_Invitation_=E2=80=93_AI_Automation_Specialist_Po?=\r\n\t=?UTF-8?Q?sition?=",
+            "to": "To: Rohanur Rahman ontu <playwithdatawithontu@gmail.com>",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"000000000000eae057065fc5fb3d\""
+          },
+          "html": "<div dir=\"ltr\"><p>Hello,</p><p>Thank you for applying for the AI Automation Specialist position at TechVision Solutions.</p><p>We are pleased to inform you that your application has been shortlisted. We would like to invite you for an online interview on November 12, 2026, at 10:00 AM.</p><p>Please confirm your availability by replying to this email.</p><p>Best regards,</p><p>HR Recruitment Team<br>TechVision Solutions</p></div>\n",
+          "text": "Hello,\n\nThank you for applying for the AI Automation Specialist position at\nTechVision Solutions.\n\nWe are pleased to inform you that your application has been shortlisted. We\nwould like to invite you for an online interview on November 12, 2026, at\n10:00 AM.\n\nPlease confirm your availability by replying to this email.do You work with numpy and pandas? please ensure us.\n\nBest regards,\n\nHR Recruitment Team\nTechVision Solutions\n",
+          "textAsHtml": "<p>Hello,</p><p>Thank you for applying for the AI Automation Specialist position at<br/>TechVision Solutions.</p><p>We are pleased to inform you that your application has been shortlisted. We<br/>would like to invite you for an online interview on November 12, 2026, at<br/>10:00 AM.</p><p>Please confirm your availability by replying to this email.</p><p>Best regards,</p><p>HR Recruitment Team<br/>TechVision Solutions</p>",
+          "subject": "Interview Invitation – AI Automation Specialist Position",
+          "date": "2026-11-08T16:03:08.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "playwithdatawithontu@gmail.com",
+                "name": "Rohanur Rahman ontu"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Rohanur Rahman ontu</span> &lt;<a href=\"mailto:playwithdatawithontu@gmail.com\" class=\"mp_address_email\">playwithdatawithontu@gmail.com</a>&gt;</span>",
+            "text": "\"Rohanur Rahman ontu\" <playwithdatawithontu@gmail.com>"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "teasy179@gmail.com",
+                "name": "Rohanur Rahman"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Rohanur Rahman</span> &lt;<a href=\"mailto:teasy179@gmail.com\" class=\"mp_address_email\">teasy179@gmail.com</a>&gt;</span>",
+            "text": "\"Rohanur Rahman\" <teasy179@gmail.com>"
+          },
+          "messageId": "<CA+Wccc2pUJ3NQP+B2uNDvoG+0GqRxLgL0zDCQ0=hCiRR1pP5pw@mail.gmail.com>"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Job L",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Push a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        []
+      ]
+    },
+    "Job L": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crawl a website in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3925916f-cce8-4787-a716-42e104d1ddc6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa26a1cc9044e8e410662b9049d380906637a1d56b7da5610dd91176b94a6753"
+  },
+  "nodeGroups": [],
+  "id": "fsRRe6wKA60fqGiy",
+  "tags": []
+}
